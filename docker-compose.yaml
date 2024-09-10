@@ -5,22 +5,15 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.39.2
     ports:
       - '2200:2200'
-    command:
-      - "--housekeeping_interval=30s"
-      - "--docker_only=true"
-      - "--disable_metrics=percpu,sched,tcp,udp,disk,diskIO,accelerator,hugetlb,referenced_memory,cpu_topology,resctrl"
     volumes:
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-      - /sys:/sys:ro
-      - /var/run:/var/run:rw
       - //:/rootfs:ro
-      - /sys/fs/cgroup:/cgroup:ro
-      - /etc/machine-id:/etc/machine-id:ro
-      - /etc/localtime:/etc/localtime:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
     devices:
-      - /dev/kmsg:/dev/kmsg
-    priveleged: true
+      - /dev/kmsg
+    privileged: true
   
   prometheus:
     image: prom/prometheus
