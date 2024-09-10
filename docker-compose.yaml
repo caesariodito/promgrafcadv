@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  cadvisor:
+      image: gcr.io/cadvisor/cadvisor:v0.47.1
+      hostname: cadvisor
+      privileged: true
+      volumes:
+        - "//:/rootfs:ro"
+        - "/var/run:/var/run:ro"
+        - "/sys:/sys:ro"
+        - "/var/lib/docker/:/var/lib/docker:ro"
+        - "/dev/disk/:/dev/disk:ro"
+      devices:
+        - "dev/kmsg"
+      ports:
+        - "8081:8081"
+  
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus-scrape-config.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
