@@ -3,16 +3,17 @@ version: "3"
 services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
     ports:
-      - "2200:2200"
+      - "9091:9091" # Fixed to expose the correct port
     command:
-      - "--port=2200"
+      - "--port=9091"
       - "--docker_only=true"
-      - "--housekeeping_interval=55s"
+      - "--housekeeping_interval=15s"
       - "--store_container_labels=false"
     user: "0"
     volumes:
-      - //:/rootfs:ro
+      - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
@@ -22,6 +23,7 @@ services:
     security_opt:
       - no-new-privileges:true
     privileged: true
+    restart: unless-stopped
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -31,16 +33,18 @@ services:
     pid: host
     restart: unless-stopped
     volumes:
-      - //:/host:ro,rslave
+      - /:/host:ro,rslave
     ports:
-      - 9100:9100
+      - "9100:9100"
 
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
     volumes:
-      - ./prometheus-scrape-config.yaml:/etc/prometheus/prometheus.yml
+      - ./prometheus-scrape-config.yaml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana
