@@ -43,7 +43,7 @@ services:
     volumes:
       - ./prometheus-scrape-config.yaml:/etc/prometheus/prometheus.yml:ro
     ports:
-      - "9090:9090"
+      - "9095:9090" # changed host port to avoid conflict
     restart: unless-stopped
 
   grafana:

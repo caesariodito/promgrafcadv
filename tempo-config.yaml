@@ -37,4 +37,3 @@ querier:
 query_frontend:
   search:
     max_duration: 0s
-
