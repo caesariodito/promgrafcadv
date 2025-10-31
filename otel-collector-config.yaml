@@ -11,7 +11,9 @@ processors:
 
 connectors:
   spanmetrics:
+    metrics_flush_interval: 5s
     dimensions:
+      - name: service.name
       - name: http.method
       - name: http.route
       - name: http.status_code
