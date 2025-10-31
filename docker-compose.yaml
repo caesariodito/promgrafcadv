@@ -40,6 +40,9 @@ services:
   prometheus:
     image: prom/prometheus
     container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --enable-feature=remote-write-receiver
     volumes:
       - ./prometheus-scrape-config.yaml:/etc/prometheus/prometheus.yml:ro
     ports:
@@ -75,7 +78,8 @@ services:
     ports:
       - "4317:4317" # OTLP gRPC ingest from apps
       - "4318:4318" # OTLP HTTP ingest (optional)
-      - "8889:8889" # Prometheus scrape endpoint
+      - "8889:8889" # Prometheus app metrics endpoint (from exporter)
+      - "8888:8888" # Collector internal telemetry metrics
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
     depends_on:
