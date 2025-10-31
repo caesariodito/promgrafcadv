@@ -37,15 +37,3 @@ querier:
 query_frontend:
   search:
     max_duration: 0s
-
-# Optional: generate span metrics and service graphs, and remote write them to Prometheus
-metrics_generator:
-  registry:
-    prometheus: {}
-  processor:
-    span_metrics: {}
-    service_graphs: {}
-  storage:
-    path: /tmp/tempo/generator/wal
-  remote_write:
-    - url: http://prometheus:9090/api/v1/write

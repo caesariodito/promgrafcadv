@@ -46,7 +46,7 @@ services:
     volumes:
       - ./prometheus-scrape-config.yaml:/etc/prometheus/prometheus.yml:ro
     ports:
-      - "9095:9090" # changed host port to avoid conflict
+      - "9095:9090"  # changed host port to avoid conflict
     restart: unless-stopped
 
   grafana:
@@ -65,21 +65,21 @@ services:
     restart: unless-stopped
     command: ["-config.file=/etc/tempo/config.yaml"]
     ports:
-      - "3200:3200" # Tempo query/metrics HTTP
+      - "3200:3200"  # Tempo query/metrics HTTP
       # Note: No host port for 4317; collector sends internally to tempo:4317
     volumes:
       - ./tempo-config.yaml:/etc/tempo/config.yaml:ro
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.91.0
+    image: otel/opentelemetry-collector-contrib:0.91.0
     container_name: otel-collector
     restart: unless-stopped
     command: ["--config=/etc/otelcol/config.yaml"]
     ports:
-      - "4317:4317" # OTLP gRPC ingest from apps
-      - "4318:4318" # OTLP HTTP ingest (optional)
-      - "8889:8889" # Prometheus app metrics endpoint (from exporter)
-      - "8888:8888" # Collector internal telemetry metrics
+      - "4317:4317"  # OTLP gRPC ingest from apps
+      - "4318:4318"  # OTLP HTTP ingest (optional)
+      - "8889:8889"  # Prometheus app metrics endpoint (from exporter)
+      - "8888:8888"  # Collector internal telemetry metrics
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
     depends_on:
