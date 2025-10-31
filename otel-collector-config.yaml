@@ -21,7 +21,8 @@ exporters:
   prometheus:
     endpoint: 0.0.0.0:8889
   otlp/tempo:
-    endpoint: tempo:4317
+    endpoint: http://tempo:4318
+    protocol: http/protobuf
     tls:
       insecure: true
 
