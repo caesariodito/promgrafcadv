@@ -22,6 +22,8 @@ exporters:
     endpoint: 0.0.0.0:8889
   otlphttp/tempo:
     endpoint: http://tempo:4318
+  prometheusremotewrite/mimir:
+    endpoint: http://mimir:9009/api/v1/push
 
 service:
   telemetry:
@@ -31,7 +33,7 @@ service:
     metrics:
       receivers: [otlp, spanmetrics]
       processors: [batch]
-      exporters: [prometheus]
+      exporters: [prometheus, prometheusremotewrite/mimir]
     traces:
       receivers: [otlp]
       processors: [batch]

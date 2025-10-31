@@ -58,6 +58,11 @@ services:
       - "6969:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - mimir
+      - loki
+      - tempo
 
   tempo:
     image: grafana/tempo:latest
@@ -69,6 +74,39 @@ services:
       # Note: No host port for 4317; collector sends internally to tempo:4317
     volumes:
       - ./tempo-config.yaml:/etc/tempo/config.yaml:ro
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/config.yml"]
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+
+  mimir:
+    image: grafana/mimir:latest
+    container_name: mimir
+    restart: unless-stopped
+    command: ["-config.file=/etc/mimir/config.yaml"]
+    ports:
+      - "9009:9009"
+    volumes:
+      - ./mimir-config.yaml:/etc/mimir/config.yaml:ro
+      - mimir-data:/var/lib/mimir
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    restart: unless-stopped
+    command: ["-config.file=/etc/promtail/config.yml"]
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      - loki
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.91.0
@@ -84,6 +122,10 @@ services:
       - ./otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
     depends_on:
       - tempo
+      - mimir
+      - loki
 
 volumes:
   grafana-storage: {}
+  loki-data: {}
+  mimir-data: {}
