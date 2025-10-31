@@ -20,11 +20,8 @@ connectors:
 exporters:
   prometheus:
     endpoint: 0.0.0.0:8889
-  otlp/tempo:
+  otlphttp/tempo:
     endpoint: http://tempo:4318
-    protocol: http/protobuf
-    tls:
-      insecure: true
 
 service:
   telemetry:
@@ -38,4 +35,4 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/tempo, spanmetrics]
+      exporters: [otlphttp/tempo, spanmetrics]
