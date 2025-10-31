@@ -76,7 +76,7 @@ services:
       - ./tempo-config.yaml:/etc/tempo/config.yaml:ro
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:2.9.8
     container_name: loki
     restart: unless-stopped
     command: ["-config.file=/etc/loki/config.yml"]
@@ -87,7 +87,7 @@ services:
       - loki-data:/loki
 
   mimir:
-    image: grafana/mimir:latest
+    image: grafana/mimir:2.12.0
     container_name: mimir
     restart: unless-stopped
     command: ["-config.file=/etc/mimir/config.yaml"]

@@ -30,10 +30,6 @@ storage:
     local:
       path: /tmp/tempo/blocks
 
-querier:
-  frontend_worker:
-    frontend_address: 127.0.0.1:9095
-
 query_frontend:
   search:
     max_duration: 0s
