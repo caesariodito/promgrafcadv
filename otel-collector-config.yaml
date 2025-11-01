@@ -11,19 +11,26 @@ processors:
 
 connectors:
   spanmetrics:
-    metrics_flush_interval: 5s
+    namespace: traces
+    metrics_flush_interval: 15s
     dimensions:
+      - name: service.name
       - name: http.method
       - name: http.route
       - name: http.status_code
+    histogram:
+      explicit:
+        buckets: [2ms, 4ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2.5s, 5s, 10s]
+    exemplars:
+      enabled: true
 
 exporters:
   prometheus:
     endpoint: 0.0.0.0:8889
-  otlphttp/tempo:
-    endpoint: http://tempo:4318
-  prometheusremotewrite/mimir:
-    endpoint: http://mimir:9009/api/v1/push
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
 
 service:
   telemetry:
@@ -33,8 +40,8 @@ service:
     metrics:
       receivers: [otlp, spanmetrics]
       processors: [batch]
-      exporters: [prometheus, prometheusremotewrite/mimir]
+      exporters: [prometheus]
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlphttp/tempo, spanmetrics]
+      exporters: [otlp/tempo, spanmetrics]
