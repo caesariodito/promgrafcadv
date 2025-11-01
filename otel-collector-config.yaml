@@ -8,22 +8,16 @@ receivers:
 
 processors:
   batch: {}
-
-connectors:
   spanmetrics:
-    # Match Grafana APM panel queries which expect
-    # metrics like traces_spanmetrics_calls_total
-    namespace: traces_spanmetrics
+    # Export span-derived RED metrics via the prometheus exporter
+    metrics_exporter: prometheus
     metrics_flush_interval: 15s
     dimensions:
       - name: http.method
       - name: http.route
       - name: http.status_code
-    histogram:
-      explicit:
-        buckets: [2ms, 4ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2.5s, 5s, 10s]
-    exemplars:
-      enabled: true
+    latency_histogram:
+      buckets: [0.002s, 0.004s, 0.010s, 0.025s, 0.050s, 0.100s, 0.250s, 0.500s, 1s, 2.5s, 5s, 10s]
 
 exporters:
   prometheus:
@@ -38,11 +32,11 @@ service:
     metrics:
       address: 0.0.0.0:8888
   pipelines:
-    metrics:
-      receivers: [otlp, spanmetrics]
-      processors: [batch]
-      exporters: [prometheus]
     traces:
       receivers: [otlp]
+      processors: [spanmetrics, batch]
+      exporters: [otlp/tempo]
+    metrics:
+      receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/tempo, spanmetrics]
+      exporters: [prometheus]
