@@ -5,8 +5,9 @@ datasources:
     type: prometheus
     uid: mimir
     access: proxy
-    url: http://mimir:9009/prometheus
-    isDefault: true
+    # Temporarily point to Prometheus to ensure APM works even if Mimir ingestion is down
+    url: http://prometheus:9090
+    isDefault: false
   - name: Loki
     type: loki
     uid: loki
@@ -22,3 +23,4 @@ datasources:
     uid: prom
     access: proxy
     url: http://prometheus:9090
+    isDefault: true
