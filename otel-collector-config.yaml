@@ -14,7 +14,6 @@ connectors:
     namespace: traces
     metrics_flush_interval: 15s
     dimensions:
-      - name: service.name
       - name: http.method
       - name: http.route
       - name: http.status_code
