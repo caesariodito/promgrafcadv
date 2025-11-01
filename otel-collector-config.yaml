@@ -11,7 +11,9 @@ processors:
 
 connectors:
   spanmetrics:
-    namespace: traces
+    # Match Grafana APM panel queries which expect
+    # metrics like traces_spanmetrics_calls_total
+    namespace: traces_spanmetrics
     metrics_flush_interval: 15s
     dimensions:
       - name: http.method
