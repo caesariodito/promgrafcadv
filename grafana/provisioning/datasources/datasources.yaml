@@ -5,19 +5,39 @@ datasources:
     type: prometheus
     uid: mimir
     access: proxy
-    # Temporarily point to Prometheus to ensure APM works even if Mimir ingestion is down
-    url: http://prometheus:9090
+    url: http://mimir:9009/prometheus
     isDefault: false
   - name: Loki
     type: loki
     uid: loki
     access: proxy
     url: http://loki:3100
+    jsonData:
+      # Attempt to extract trace IDs from logs for Tempo linking
+      derivedFields:
+        - name: traceID
+          matcherRegex: "trace(?:[ _-]?id|_id|Id|ID)[=:\" ]([a-fA-F0-9]{16,32})"
+          datasourceUid: tempo
+          url: "$${__value.raw}"
   - name: Tempo
     type: tempo
     uid: tempo
     access: proxy
     url: http://tempo:3200
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: ["job", "container", "pod", "compose_service"]
+        mappedTags: [{ key: "service.name", value: "service_name" }]
+        mapTagNamesEnabled: true
+        spanStartTimeShift: "-10m"
+        spanEndTimeShift: "10m"
+        filterByTraceID: true
+        filterBySpanID: false
+      serviceMap:
+        datasourceUid: mimir
+      nodeGraph:
+        enabled: true
   - name: Local Prometheus
     type: prometheus
     uid: prom
