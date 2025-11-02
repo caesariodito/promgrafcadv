@@ -1,4 +1,9 @@
 LGTM + OTEL Docker Stack
+APM endpoints (additional):
+- Zipkin: `http://localhost:9411/api/v2/spans`
+- Jaeger (Thrift HTTP): `http://localhost:14268/api/traces`
+- Jaeger (gRPC): `localhost:14250`
+- OTLP logs: `http://localhost:4318/v1/logs` (HTTP), `localhost:4317` (gRPC)
 
 This repository provides a ready‑to‑run local LGTM stack (Loki, Grafana, Tempo, Mimir) with an OpenTelemetry Collector, Prometheus, cAdvisor, Node Exporter, and Promtail — adapted from Grafana's docker‑otel‑lgtm example but flattened into the project root.
 
@@ -35,4 +40,3 @@ Notes
 - Mimir datasource is configured at `http://mimir:9009/prometheus` for queries.
 - Tempo <-> Loki linking is enabled; if your logs include a `trace_id`/`traceID` field, Grafana links traces ↔ logs automatically.
 - On Windows hosts, Promtail’s Docker log path mount may need adjustment if Docker Desktop stores logs in a non‑default location.
-

@@ -125,6 +125,9 @@ services:
       - "4318:4318"  # OTLP HTTP ingest (optional)
       - "8889:8889"  # Prometheus app metrics endpoint (from exporter)
       - "8888:8888"  # Collector internal telemetry metrics
+      - "9411:9411"  # Zipkin HTTP ingest
+      - "14268:14268" # Jaeger Thrift HTTP ingest
+      - "14250:14250" # Jaeger gRPC ingest
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
     depends_on:
