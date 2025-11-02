@@ -1,6 +1,14 @@
 server:
   http_listen_port: 3200
 
+traces:
+  otlp:
+    protocols:
+      grpc:
+        enabled: true
+      http:
+        enabled: true
+
 distributor:
   receivers:
     otlp:
