@@ -24,8 +24,9 @@ processors:
       - name: http.method
       - name: http.route
       - name: http.status_code
-    latency_histogram:
-      buckets: [0.002s, 0.004s, 0.010s, 0.025s, 0.050s, 0.100s, 0.250s, 0.500s, 1s, 2.5s, 5s, 10s]
+    histogram:
+      explicit:
+        buckets: [0.002, 0.004, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
 
 exporters:
   prometheus:
@@ -36,16 +37,6 @@ exporters:
       insecure: true
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
-    labels:
-      resource:
-        service.name: service_name
-        service.namespace: service_namespace
-        deployment.environment: env
-      attributes:
-        http.method: http_method
-        http.status_code: http_status_code
-        level: level
-    format: json
 
 service:
   telemetry:
