@@ -69,6 +69,16 @@ services:
     volumes:
       - ./tempo-config.yaml:/etc/tempo/config.yaml:ro
 
+  tempo-metrics-generator:
+    image: grafana/tempo:latest
+    container_name: tempo-metrics-generator
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/config.yaml", "-target=metrics-generator"]
+    depends_on:
+      - tempo
+    volumes:
+      - ./tempo-config.yaml:/etc/tempo/config.yaml:ro
+
   loki:
     image: grafana/loki:latest
     container_name: loki

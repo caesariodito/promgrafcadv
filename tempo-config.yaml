@@ -20,6 +20,20 @@ ingester:
   max_block_bytes: 1000000
   max_block_duration: 5m
 
+metrics_generator:
+  ring:
+    kvstore:
+      store: memberlist
+  processor:
+    span_metrics:
+      dimensions: [service.name, http.method, http.status_code]
+    service_graphs: {}
+  storage:
+    path: /tmp/tempo/generator
+    remote_write:
+      - url: http://mimir:9009/api/v1/push
+        send_exemplars: true
+
 compactor:
   compaction:
     block_retention: 24h
@@ -35,6 +49,8 @@ storage:
 query_frontend:
   search:
     max_duration: 0s
+overrides:
+  metrics_generator_processors: [span-metrics, service-graphs, local-blocks]
 
 memberlist:
   abort_if_cluster_join_fails: false
@@ -43,3 +59,4 @@ memberlist:
   bind_port: 7946
   join_members:
     - tempo
+    - tempo-metrics-generator
