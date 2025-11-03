@@ -75,10 +75,20 @@ services:
     image: grafana/tempo:latest
     container_name: tempo
     restart: unless-stopped
-    command: ["-config.file=/etc/tempo/config.yaml", "-target=all,metrics-generator"]
+    command: ["-config.file=/etc/tempo/config.yaml"]
     ports:
       - "3200:3200"  # Tempo query/metrics HTTP
       # Note: No host port for 4317; collector sends internally to tempo:4317
+    volumes:
+      - ./tempo-config.yaml:/etc/tempo/config.yaml:ro
+
+  tempo-metrics-generator:
+    image: grafana/tempo:latest
+    container_name: tempo-metrics-generator
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/config.yaml", "-target=metrics-generator"]
+    depends_on:
+      - tempo
     volumes:
       - ./tempo-config.yaml:/etc/tempo/config.yaml:ro
 
