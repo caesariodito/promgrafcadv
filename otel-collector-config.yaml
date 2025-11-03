@@ -39,9 +39,7 @@ exporters:
     endpoint: http://loki:3100/loki/api/v1/push
 
 service:
-  telemetry:
-    metrics:
-      address: 0.0.0.0:8888
+  telemetry: {}
   pipelines:
     traces:
       receivers: [otlp, zipkin, jaeger]
