@@ -38,9 +38,3 @@ datasources:
         datasourceUid: mimir
       nodeGraph:
         enabled: true
-  - name: Local Prometheus
-    type: prometheus
-    uid: prom
-    access: proxy
-    url: http://prometheus:9090
-    isDefault: false

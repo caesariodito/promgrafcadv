@@ -28,10 +28,10 @@ File map
 - `docker-compose.yaml` — service definitions for the whole stack
 - `alloy-config.river` — Alloy config replacing Prometheus/Collector/Promtail
 - `loki-config.yaml`, `mimir-config.yaml`, `tempo-config.yaml` — storage/runtime config
-- `grafana/provisioning/datasources` — prewired datasources (Mimir, Loki, Tempo, Local Prometheus)
+- `grafana/provisioning/datasources` — prewired datasources (Mimir, Loki, Tempo)
 - `grafana/provisioning/dashboards` — dashboard provider
 - `grafana/dashboards` — starter dashboards
 
 Notes
-- Prometheus service has been removed; use the “Mimir” datasource for PromQL queries. The provisioned “Local Prometheus” datasource will be offline unless you re‑enable Prometheus.
+- Prometheus service has been removed; use the “Mimir” datasource for PromQL queries. The “Local Prometheus” datasource has been removed from provisioning.
 - Tempo <-> Loki linking is enabled; if your logs include a `trace_id`/`traceID` field, Grafana links traces ↔ logs automatically.
