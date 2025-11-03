@@ -21,6 +21,7 @@ ingester:
   max_block_duration: 5m
 
 metrics_generator:
+  enabled: true
   # Enable metrics for TraceQL metrics and service graphs
   ring:
     kvstore:
