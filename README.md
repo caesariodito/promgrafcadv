@@ -10,7 +10,7 @@ What’s included
 - Tempo (traces): `tempo:3200`; Alloy exports traces to Tempo
 - Mimir (metrics store): `mimir:9009`; Alloy remote_writes Prometheus metrics
 - Loki (logs): `loki:3100`; Alloy ships Docker logs
-- Alloy (ingest/scrape/ship): OTLP gRPC `4317`, OTLP HTTP `4318`, spanmetrics `8889`
+- Alloy (ingest/scrape/ship): OTLP gRPC `4317`, OTLP HTTP `4318`
 - cAdvisor and Node Exporter for host/container metrics
 - Grafana provisioning for datasources and a starter RED dashboard
 
@@ -21,7 +21,7 @@ Run
 
 Send test telemetry
 - Traces: point your app’s OTLP exporter at `http://localhost:4318` (HTTP) or `localhost:4317` (gRPC). Alloy receives and forwards to Tempo.
-- Metrics: Alloy emits spanmetrics at `:8889`, scrapes cAdvisor/Node Exporter, and remote‑writes to Mimir.
+- Metrics: Alloy generates spanmetrics from traces and remote‑writes them to Mimir, and also scrapes cAdvisor/Node Exporter with remote_write to Mimir.
 - Logs: Alloy tails Docker container logs (`/var/lib/docker/containers/*/*-json.log`) and ships to Loki.
 
 File map

@@ -99,7 +99,7 @@ services:
     ports:
       - "4317:4317"   # OTLP gRPC
       - "4318:4318"   # OTLP HTTP
-      - "8889:8889"   # Prometheus metrics from spanmetrics
+      # 8889 no longer used (spanmetrics sent via Remote Write)
     volumes:
       - ./alloy-config.river:/etc/alloy/config.river:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro

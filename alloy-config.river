@@ -9,23 +9,22 @@ otelcol.receiver.otlp "ingest" {
 
 otelcol.processor.batch "default" {
   output {
-    traces = [otelcol.connector.spanmetrics.red.input, otelcol.exporter.otlp.tempo.input]
+    traces = [otelcol.processor.spanmetrics.red.input]
   }
 }
 
-otelcol.connector.spanmetrics "red" {
-  dimensions = [
-    { name = "http.method" },
-    { name = "http.route" },
-    { name = "http.status_code" },
-  ]
-  histogram {
-    explicit {
-      buckets = [0.002, 0.004, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
-    }
+otelcol.exporter.prometheusremotewrite "mimir_otlp" {
+  client {
+    endpoint = "http://mimir:9009/api/v1/push"
   }
+}
+
+otelcol.processor.spanmetrics "red" {
+  metrics_exporter = otelcol.exporter.prometheusremotewrite.mimir_otlp
+  dimensions = ["http.method", "http.route", "http.status_code"]
+  latency_histogram_buckets = ["2ms","4ms","10ms","25ms","50ms","100ms","250ms","500ms","1s","2.5s","5s","10s"]
   output {
-    metrics = [otelcol.exporter.prometheus.spanmetrics.input]
+    traces = [otelcol.exporter.otlp.tempo.input]
   }
 }
 
@@ -36,11 +35,7 @@ otelcol.exporter.otlp "tempo" {
   }
 }
 
-otelcol.exporter.prometheus "spanmetrics" {
-  server {
-    endpoint = "0.0.0.0:8889"
-  }
-}
+// Removed Prometheus endpoint exporter; spanmetrics go directly to Mimir via remote write
 
 // ===== Metrics scrape -> Mimir remote_write =====
 prometheus.remote_write "mimir" {
@@ -59,11 +54,7 @@ prometheus.scrape "node_exporter" {
   forward_to      = [prometheus.remote_write.mimir.receiver]
 }
 
-prometheus.scrape "otel_internal" {
-  targets         = [{ "__address__" = "alloy:8889" }]
-  scrape_interval = "15s"
-  forward_to      = [prometheus.remote_write.mimir.receiver]
-}
+// Removed scrape of local spanmetrics endpoint (using remote write exporter instead)
 
 // ===== Logs tail -> Loki =====
 // Mirrors promtail: /var/lib/docker/containers/*/*-json.log
@@ -72,7 +63,7 @@ loki.write "loki" {
 }
 
 loki.process "docker_json" {
-  stage.json {}
+  stage.docker {}
   forward_to = [loki.write.loki.receiver]
 }
 
