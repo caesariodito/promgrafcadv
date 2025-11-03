@@ -1,0 +1,80 @@
+// ===== Traces -> Tempo, and RED via spanmetrics =====
+otelcol.receiver.otlp "ingest" {
+  grpc { endpoint = "0.0.0.0:4317" }
+  http { endpoint = "0.0.0.0:4318" }
+}
+
+otelcol.connector.spanmetrics "red" {
+  dimensions = ["http.method", "http.route", "http.status_code"]
+  histogram {
+    explicit = [0.002, 0.004, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  endpoint = "http://tempo:4317"
+  tls { insecure = true }
+}
+
+otelcol.exporter.prometheus "spanmetrics" {
+  endpoint = "0.0.0.0:8889"
+}
+
+otelcol.processor.batch "default" {}
+
+otelcol.service "traces" {
+  pipelines {
+    traces = [
+      otelcol.receiver.otlp.ingest,
+      otelcol.processor.batch.default,
+      otelcol.connector.spanmetrics.red,
+      otelcol.exporter.otlp.tempo,
+    ]
+    metrics = [
+      otelcol.connector.spanmetrics.red,
+      otelcol.exporter.prometheus.spanmetrics,
+    ]
+  }
+}
+
+// ===== Metrics scrape -> Mimir remote_write =====
+prometheus.scrape "cadvisor" {
+  targets         = [{ "__address__" = "cadvisor:9091" }]
+  scrape_interval = "15s"
+}
+prometheus.scrape "node_exporter" {
+  targets         = [{ "__address__" = "node-exporter:9100" }]
+  scrape_interval = "15s"
+}
+prometheus.scrape "otel_internal" {
+  targets         = [{ "__address__" = "alloy:8889" }]
+  scrape_interval = "15s"
+}
+prometheus.remote_write "mimir" {
+  endpoint {
+    url = "http://mimir:9009/api/v1/push"
+  }
+}
+prometheus.service "metrics" {
+  scrape       = [prometheus.scrape.cadvisor, prometheus.scrape.node_exporter, prometheus.scrape.otel_internal]
+  remote_write = [prometheus.remote_write.mimir]
+}
+
+// ===== Logs tail -> Loki =====
+// Mirrors promtail: /var/lib/docker/containers/*/*-json.log
+loki.source.file "docker_json" {
+  targets = [
+    { "job" = "docker", "__path__" = "/var/lib/docker/containers/*/*-json.log" },
+  ]
+  forward_to = [loki.service.logs.receiver]
+}
+loki.process "nop" { stage.json {} } // optional JSON decode stage
+loki.write "loki" {
+  endpoint { url = "http://loki:3100/loki/api/v1/push" }
+}
+loki.service "logs" {
+  forward_to = [loki.write.loki.receiver]
+  // simple pass-through; include loki.process.nop if you want JSON parsing:
+  // forward_to = [loki.process.nop.receiver]
+}
+

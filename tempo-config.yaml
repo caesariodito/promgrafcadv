@@ -20,21 +20,6 @@ ingester:
   max_block_bytes: 1000000
   max_block_duration: 5m
 
-metrics_generator:
-  # Enable metrics for TraceQL metrics and service graphs
-  ring:
-    kvstore:
-      store: memberlist
-  processor:
-    span_metrics:
-      dimensions: [service.name, http.method, http.status_code]
-    service_graphs: {}
-  storage:
-    path: /tmp/tempo/generator
-    remote_write:
-      - url: http://prometheus:9090/api/v1/write
-        send_exemplars: true
-
 compactor:
   compaction:
     block_retention: 24h
@@ -50,8 +35,6 @@ storage:
 query_frontend:
   search:
     max_duration: 0s
-overrides:
-  metrics_generator_processors: [span-metrics, service-graphs, local-blocks]
 
 memberlist:
   abort_if_cluster_join_fails: false
@@ -60,4 +43,3 @@ memberlist:
   bind_port: 7946
   join_members:
     - tempo
-    - tempo-metrics-generator
