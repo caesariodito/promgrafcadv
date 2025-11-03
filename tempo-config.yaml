@@ -50,8 +50,7 @@ query_frontend:
   search:
     max_duration: 0s
 overrides:
-  defaults:
-    metrics_generator_processors: [span-metrics, service-graphs]
+  metrics_generator_processors: [span-metrics, service-graphs]
 
 memberlist:
   abort_if_cluster_join_fails: false
