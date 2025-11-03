@@ -47,33 +47,21 @@ prometheus.remote_write "mimir" {
   endpoint { url = "http://mimir:9009/api/v1/push" }
 }
 
-discovery.static "cadvisor" {
-  targets = ["cadvisor:9091"]
-  labels  = { job = "cadvisor" }
-}
 prometheus.scrape "cadvisor" {
-  targets         = discovery.static.cadvisor.targets
-  scrape_interval = 15s
+  targets         = [{ "__address__" = "cadvisor:9091" }]
+  scrape_interval = "15s"
   forward_to      = [prometheus.remote_write.mimir.receiver]
 }
 
-discovery.static "node_exporter" {
-  targets = ["node-exporter:9100"]
-  labels  = { job = "node_exporter" }
-}
 prometheus.scrape "node_exporter" {
-  targets         = discovery.static.node_exporter.targets
-  scrape_interval = 15s
+  targets         = [{ "__address__" = "node-exporter:9100" }]
+  scrape_interval = "15s"
   forward_to      = [prometheus.remote_write.mimir.receiver]
 }
 
-discovery.static "otel_internal" {
-  targets = ["alloy:8889"]
-  labels  = { job = "spanmetrics" }
-}
 prometheus.scrape "otel_internal" {
-  targets         = discovery.static.otel_internal.targets
-  scrape_interval = 15s
+  targets         = [{ "__address__" = "alloy:8889" }]
+  scrape_interval = "15s"
   forward_to      = [prometheus.remote_write.mimir.receiver]
 }
 
@@ -83,19 +71,14 @@ loki.write "loki" {
   endpoint { url = "http://loki:3100/loki/api/v1/push" }
 }
 
+loki.process "docker_json" {
+  stage.json {}
+  forward_to = [loki.write.loki.receiver]
+}
+
 loki.source.file "docker_json" {
   targets = [
     { "job" = "docker", "__path__" = "/var/lib/docker/containers/*/*-json.log" },
   ]
-  forward_to = [loki.write.loki.receiver]
+  forward_to = [loki.process.docker_json.receiver]
 }
-
-// Optional JSON decoding stage if your logs are emitted as JSON
-// loki.process "json_decode" {
-//   stage.json {}
-//   forward_to = [loki.write.loki.receiver]
-// }
-// loki.source.file "docker_json" {
-//   targets    = [{ "job" = "docker", "__path__" = "/var/lib/docker/containers/*/*-json.log" }]
-//   forward_to = [loki.process.json_decode.receiver]
-// }
