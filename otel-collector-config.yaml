@@ -16,14 +16,14 @@ receivers:
 
 processors:
   batch: {}
+
+connectors:
   spanmetrics:
-    # Export span-derived RED metrics via the prometheus exporter
-    metrics_exporter: prometheus
-    metrics_flush_interval: 15s
     dimensions:
       - name: http.method
       - name: http.route
       - name: http.status_code
+    metrics_flush_interval: 15s
     histogram:
       explicit:
         buckets: [0.002, 0.004, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
@@ -35,21 +35,15 @@ exporters:
     endpoint: tempo:4317
     tls:
       insecure: true
-  loki:
-    endpoint: http://loki:3100/loki/api/v1/push
 
 service:
   telemetry: {}
   pipelines:
     traces:
       receivers: [otlp, zipkin, jaeger]
-      processors: [spanmetrics, batch]
-      exporters: [otlp/tempo]
+      processors: [batch]
+      exporters: [otlp/tempo, spanmetrics]
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, spanmetrics]
       processors: [batch]
       exporters: [prometheus]
-    logs:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [loki]
