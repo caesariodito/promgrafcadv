@@ -21,11 +21,10 @@ ingester:
   max_block_duration: 5m
 
 metrics_generator:
-  enabled: true
   # Enable metrics for TraceQL metrics and service graphs
   ring:
     kvstore:
-      store: inmemory
+      store: memberlist
   processor:
     span_metrics:
       dimensions: [service.name, http.method, http.status_code]
@@ -52,3 +51,8 @@ query_frontend:
     max_duration: 0s
 overrides:
   metrics_generator_processors: [span-metrics, service-graphs]
+
+memberlist:
+  abort_if_cluster_join_fails: false
+  bind_addr: 0.0.0.0
+  bind_port: 7946
