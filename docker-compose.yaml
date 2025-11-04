@@ -1,60 +1,79 @@
-version: "3"
-
 services:
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
-    container_name: cadvisor
-    ports:
-      - "9091:9091" # Fixed to expose the correct port
-    command:
-      - "--port=9091"
-      - "--docker_only=true"
-      - "--housekeeping_interval=15s"
-      - "--store_container_labels=false"
-    user: "0"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk:/dev/disk:ro
-    devices:
-      - /dev/kmsg
-    security_opt:
-      - no-new-privileges:true
-    privileged: true
-    restart: unless-stopped
-
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node_exporter
-    command:
-      - "--path.rootfs=/host"
-    pid: host
-    restart: unless-stopped
-    volumes:
-      - /:/host:ro,rslave
-    ports:
-      - "9100:9100"
-
   prometheus:
-    image: prom/prometheus
+    image: docker.io/prom/prometheus:v3.7.3
     container_name: prometheus
-    volumes:
-      - ./prometheus-scrape-config.yaml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=2GB
     ports:
       - "9092:9090"
+    volumes:
+      - ./config/prometheus-config.yaml:/etc/prometheus/prometheus.yaml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - bridge
     restart: unless-stopped
 
   grafana:
     image: grafana/grafana
     container_name: grafana
-    restart: unless-stopped
     user: "0"
     ports:
       - "6969:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
+    networks:
+      - bridge
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:v1.11.3
+    container_name: alloy
+    hostname: alloy
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./config/alloy.config:/etc/alloy/config.alloy
+      - alloy_data:/var/lib/alloy/data
+      - /:/rootfs:ro
+      - /sys:/sys:ro
+      - /run:/run:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/:/var/lib/docker/:ro
+      - /run/udev/data:/run/udev/data:ro
+    networks:
+      - bridge
+    restart: unless-stopped
+
+  loki:
+    image: docker.io/grafana/loki:3.5.7
+    container_name: loki
+    command: "-config.file=/etc/loki/config.yaml"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/config.yaml:ro
+      - data_loki:/loki:rw
+    networks:
+      - bridge
+    restart: unless-stopped
 
 volumes:
-  grafana-storage: {}
+  prometheus-data:
+    driver: local
+  grafana-storage:
+    driver: local
+  alloy_data:
+    driver: local
+  data_loki:
+    driver: local
+
+networks:
+  bridge:
+    external: false
