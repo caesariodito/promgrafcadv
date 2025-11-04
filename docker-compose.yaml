@@ -45,6 +45,7 @@ services:
       - /sys:/sys:ro
       - /run:/run:ro
       - /var/log:/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/lib/docker/:/var/lib/docker/:ro
       - /run/udev/data:/run/udev/data:ro
     networks:
