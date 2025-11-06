@@ -1,17 +1,15 @@
 services:
-  prometheus:
-    image: docker.io/prom/prometheus:v3.7.3
-    container_name: prometheus
+  mimir:
+    image: grafana/mimir:latest
+    container_name: mimir
     command:
-      - --config.file=/etc/prometheus/prometheus.yaml
-      - --web.enable-remote-write-receiver
-      - --storage.tsdb.retention.time=7d
-      - --storage.tsdb.retention.size=2GB
+      - -config.file=/etc/mimir/mimir.yaml
+      - -target=all
     ports:
-      - "9092:9090"
+      - "9009:9009"
     volumes:
-      - ./config/prometheus-config.yaml:/etc/prometheus/prometheus.yaml:ro
-      - prometheus-data:/prometheus
+      - ./config/mimir.yaml:/etc/mimir/mimir.yaml:ro
+      - mimir_data:/data
     networks:
       - bridge
     restart: unless-stopped
@@ -24,6 +22,7 @@ services:
       - "6969:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
       - bridge
     restart: unless-stopped
@@ -67,13 +66,13 @@ services:
     restart: unless-stopped
 
 volumes:
-  prometheus-data:
-    driver: local
   grafana-storage:
     driver: local
   alloy_data:
     driver: local
   data_loki:
+    driver: local
+  mimir_data:
     driver: local
 
 networks:
