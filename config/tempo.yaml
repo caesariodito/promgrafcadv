@@ -32,8 +32,8 @@ storage:
     backend: local
     local:
       path: /var/tempo/blocks
-  wal:
-    path: /var/tempo/wal
+    wal:
+      path: /var/tempo/wal
 
 # Optional: generate metrics from traces and ship to Mimir
 metrics_generator:
