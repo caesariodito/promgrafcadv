@@ -46,6 +46,11 @@ metrics_generator:
       - url: http://mimir:9009/api/v1/push
         send_exemplars: true
   processor:
+    local_blocks:
+      # Include all spans in TraceQL metrics. Default true filters to server spans only.
+      filter_server_spans: false
+      # Flush RF1 local-blocks to storage so historical queries work.
+      flush_to_storage: true
     service_graphs:
       dimensions: [http.method, http.status_code]
     span_metrics:
@@ -54,4 +59,4 @@ metrics_generator:
 overrides:
   defaults:
     metrics_generator:
-      processors: [service-graphs, span-metrics]
+      processors: [local-blocks, service-graphs, span-metrics]
