@@ -1,4 +1,19 @@
 services:
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command:
+      - -config.file=/etc/tempo/tempo.yaml
+    ports:
+      - "3200:3200"   # Tempo HTTP API / UI
+      - "4317:4317"   # OTLP gRPC ingest
+      - "4318:4318"   # OTLP HTTP ingest
+    volumes:
+      - ./config/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - tempo_data:/var/tempo
+    networks:
+      - bridge
+    restart: unless-stopped
   mimir:
     image: grafana/mimir:latest
     container_name: mimir
@@ -38,6 +53,8 @@ services:
       - /etc/alloy/config.alloy
     ports:
       - "12345:12345"
+      - "4317:4317"   # OTLP gRPC ingest (external)
+      - "4318:4318"   # OTLP HTTP ingest (external)
     volumes:
       - ./config/alloy.config:/etc/alloy/config.alloy
       - alloy_data:/var/lib/alloy/data
@@ -73,6 +90,8 @@ volumes:
   data_loki:
     driver: local
   mimir_data:
+    driver: local
+  tempo_data:
     driver: local
 
 networks:

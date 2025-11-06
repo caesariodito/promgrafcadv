@@ -7,3 +7,20 @@ datasources:
     isDefault: true
     jsonData:
       httpMethod: POST
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    jsonData:
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+      tracesToLogsV2:
+        datasourceUid: Loki
+      serviceMap:
+        datasourceUid: Mimir
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
