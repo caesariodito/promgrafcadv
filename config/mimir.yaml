@@ -43,11 +43,13 @@ store_gateway:
 ruler_storage:
   backend: filesystem
   filesystem:
+    # Persistent storage for API-managed rule groups
     dir: /data/rules
 
 ruler:
   enable_api: true
-  rule_path: /data/rules
+  # Local working directory for ruler; must not overlap with ruler_storage.filesystem.dir
+  rule_path: /data/rules-work
 
 alertmanager_storage:
   backend: filesystem
