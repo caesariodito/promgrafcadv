@@ -11,8 +11,10 @@ blocks_storage:
   bucket_store:
     sync_dir: /data/tsdb-sync
   filesystem:
-    dir: /data/tsdb
+    # Emulated object storage bucket directory (must not overlap with tsdb.dir)
+    dir: /data/bucket
   tsdb:
+    # Local TSDB working directory (must not overlap with filesystem.dir)
     dir: /data/tsdb
 
 compactor:
