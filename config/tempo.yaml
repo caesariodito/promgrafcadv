@@ -23,10 +23,6 @@ ingester:
         store: inmemory
       replication_factor: 1
 
-compactor:
-  compaction:
-    block_retention: 720h
-
 storage:
   trace:
     backend: local
