@@ -1,43 +1,30 @@
 services:
-  tempo:
-    image: grafana/tempo:latest
-    container_name: tempo
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics:latest
+    container_name: victoria-metrics
     command:
-      - -config.file=/etc/tempo/tempo.yaml
+      - "--storageDataPath=/storage"
+      - "--httpListenAddr=:8428"
+      - "--selfScrapeInterval=10s"
     ports:
-      - "3200:3200"   # Tempo HTTP API / UI
+      - "8428:8428"
     volumes:
-      - ./config/tempo.yaml:/etc/tempo/tempo.yaml:ro
-      - tempo_data:/var/tempo
+      - victoria_metrics_data:/storage
     networks:
-      - bridge
-    restart: unless-stopped
-  mimir:
-    image: grafana/mimir:latest
-    container_name: mimir
-    command:
-      - -config.file=/etc/mimir/mimir.yaml
-      - -target=all
-    ports:
-      - "9009:9009"
-    volumes:
-      - ./config/mimir.yaml:/etc/mimir/mimir.yaml:ro
-      - mimir_data:/data
-    networks:
-      - bridge
+      - observability
     restart: unless-stopped
 
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    user: "0"
+  victoria-logs:
+    image: victoriametrics/victoria-logs:latest
+    container_name: victoria-logs
+    command:
+      - "-storageDataPath=/storage"
     ports:
-      - "6969:3000"
+      - "9428:9428"
     volumes:
-      - grafana-storage:/var/lib/grafana
-      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - victoria_logs_data:/storage
     networks:
-      - bridge
+      - observability
     restart: unless-stopped
 
   alloy:
@@ -51,10 +38,8 @@ services:
       - /etc/alloy/config.alloy
     ports:
       - "12345:12345"
-      - "4317:4317"   # OTLP gRPC ingest (external)
-      - "4318:4318"   # OTLP HTTP ingest (external)
     volumes:
-      - ./config/alloy.config:/etc/alloy/config.alloy
+      - ./config/alloy.config:/etc/alloy/config.alloy:ro
       - alloy_data:/var/lib/alloy/data
       - /:/rootfs:ro
       - /sys:/sys:ro
@@ -63,35 +48,21 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/lib/docker/:/var/lib/docker/:ro
       - /run/udev/data:/run/udev/data:ro
+    depends_on:
+      - victoria-metrics
+      - victoria-logs
     networks:
-      - bridge
-    restart: unless-stopped
-
-  loki:
-    image: docker.io/grafana/loki:3.5.7
-    container_name: loki
-    command: "-config.file=/etc/loki/config.yaml"
-    ports:
-      - "3100:3100"
-    volumes:
-      - ./config/loki-config.yaml:/etc/loki/config.yaml:ro
-      - data_loki:/loki:rw
-    networks:
-      - bridge
+      - observability
     restart: unless-stopped
 
 volumes:
-  grafana-storage:
+  victoria_metrics_data:
+    driver: local
+  victoria_logs_data:
     driver: local
   alloy_data:
     driver: local
-  data_loki:
-    driver: local
-  mimir_data:
-    driver: local
-  tempo_data:
-    driver: local
 
 networks:
-  bridge:
+  observability:
     external: false
