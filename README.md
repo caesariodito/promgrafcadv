@@ -4,7 +4,7 @@ This branch runs a Grafana-free observability stack focused on metrics and logs:
 
 - `victoria-metrics` for metrics storage and querying
 - `victoria-logs` for logs storage and querying
-- `alloy` as the collection agent (Docker logs + host/journal/file logs + host/container metrics)
+- `alloy` as the collection agent (Docker logs + cAdvisor container metrics)
 
 ## Start
 
@@ -29,7 +29,7 @@ docker compose down
 
 - Alloy logs -> VictoriaLogs Loki API:
   - `http://victoria-logs:9428/insert/loki/api/v1/push`
-- Alloy metrics -> VictoriaMetrics remote_write API:
+- Alloy cAdvisor metrics -> VictoriaMetrics remote_write API:
   - `http://victoria-metrics:8428/api/v1/write`
 
 ## Quick Checks
@@ -50,4 +50,4 @@ curl -sG 'http://localhost:9428/select/logsql/query' \
 ## Notes
 
 - Grafana/Tempo/Mimir/Loki provisioning was intentionally removed from this branch.
-- If host journald is unavailable, `loki.source.journal` may produce no logs; Docker and file log sources still work.
+- This setup intentionally keeps only Docker logs and cAdvisor metrics to reduce moving parts.
