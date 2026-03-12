@@ -25,6 +25,23 @@ docker compose down
 - VictoriaLogs UI: `http://localhost:9428/select/vmui`
 - Alloy UI: `http://localhost:12345`
 
+## Custom Dashboards
+
+VictoriaMetrics VMUI is configured with `--vmui.customDashboardsPath=/etc/vm-dashboards` and mounts local files from `./dashboards`.
+
+Included dashboards:
+
+- `dashboards/node-exporter-overview.json`
+- `dashboards/cadvisor-overview.json`
+
+After changing dashboard JSON files:
+
+```bash
+docker compose up -d --force-recreate victoria-metrics
+```
+
+Then open `VMUI -> Dashboards`.
+
 ## Ingestion Wiring
 
 - Alloy logs -> VictoriaLogs Loki API:

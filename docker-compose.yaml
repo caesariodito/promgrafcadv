@@ -6,10 +6,12 @@ services:
       - "--storageDataPath=/storage"
       - "--httpListenAddr=:8428"
       - "--selfScrapeInterval=10s"
+      - "--vmui.customDashboardsPath=/etc/vm-dashboards"
     ports:
       - "8428:8428"
     volumes:
       - victoria_metrics_data:/storage
+      - ./dashboards:/etc/vm-dashboards:ro
     networks:
       - observability
     restart: unless-stopped

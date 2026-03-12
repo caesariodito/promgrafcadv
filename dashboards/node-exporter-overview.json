@@ -1,0 +1,74 @@
+{
+  "title": "Node Exporter Overview",
+  "rows": [
+    {
+      "title": "Host Utilization",
+      "panels": [
+        {
+          "title": "CPU Usage %",
+          "width": 6,
+          "expr": [
+            "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)"
+          ]
+        },
+        {
+          "title": "Memory Usage %",
+          "width": 6,
+          "expr": [
+            "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
+          ]
+        },
+        {
+          "title": "Load Average (1m)",
+          "width": 6,
+          "expr": [
+            "node_load1"
+          ]
+        },
+        {
+          "title": "Total Processes",
+          "width": 6,
+          "expr": [
+            "node_procs_running + node_procs_blocked"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Host IO",
+      "panels": [
+        {
+          "title": "Disk Used % by Mount",
+          "width": 6,
+          "expr": [
+            "100 * (1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\".*docker.*\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\".*docker.*\"})"
+          ]
+        },
+        {
+          "title": "Disk Read/Write Bytes/s",
+          "width": 6,
+          "expr": [
+            "sum by(instance) (rate(node_disk_read_bytes_total[5m]))",
+            "sum by(instance) (rate(node_disk_written_bytes_total[5m]))"
+          ],
+          "alias": [
+            "{{instance}} read",
+            "{{instance}} write"
+          ]
+        },
+        {
+          "title": "Network RX/TX Bytes/s",
+          "width": 12,
+          "expr": [
+            "sum by(instance) (rate(node_network_receive_bytes_total{device!~\"lo|veth.*|docker.*\"}[5m]))",
+            "sum by(instance) (rate(node_network_transmit_bytes_total{device!~\"lo|veth.*|docker.*\"}[5m]))"
+          ],
+          "alias": [
+            "{{instance}} rx",
+            "{{instance}} tx"
+          ]
+        }
+      ]
+    }
+  ]
+}

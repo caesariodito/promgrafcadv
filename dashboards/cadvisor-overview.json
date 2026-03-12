@@ -1,0 +1,67 @@
+{
+  "title": "cAdvisor Containers Overview",
+  "rows": [
+    {
+      "title": "Container Health",
+      "panels": [
+        {
+          "title": "Containers Seen",
+          "width": 6,
+          "expr": [
+            "count by(instance) (container_last_seen{name!~\"^$|^/$\"})"
+          ]
+        },
+        {
+          "title": "Top 10 CPU Cores Used",
+          "width": 6,
+          "expr": [
+            "topk(10, sum by(name) (rate(container_cpu_usage_seconds_total{name!~\"^$|^/$\",image!=\"\"}[5m])))"
+          ]
+        },
+        {
+          "title": "Top 10 Memory Working Set",
+          "width": 6,
+          "expr": [
+            "topk(10, sum by(name) (container_memory_working_set_bytes{name!~\"^$|^/$\",image!=\"\"}))"
+          ]
+        },
+        {
+          "title": "Container Uptime (seconds)",
+          "width": 6,
+          "expr": [
+            "time() - container_start_time_seconds{name!~\"^$|^/$\",image!=\"\"}"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Container IO",
+      "panels": [
+        {
+          "title": "Top 10 Network RX/TX Bytes/s",
+          "width": 6,
+          "expr": [
+            "topk(10, sum by(name) (rate(container_network_receive_bytes_total{name!~\"^$|^/$\",image!=\"\"}[5m])))",
+            "topk(10, sum by(name) (rate(container_network_transmit_bytes_total{name!~\"^$|^/$\",image!=\"\"}[5m])))"
+          ],
+          "alias": [
+            "{{name}} rx",
+            "{{name}} tx"
+          ]
+        },
+        {
+          "title": "Top 10 FS Read/Write Bytes/s",
+          "width": 6,
+          "expr": [
+            "topk(10, sum by(name) (rate(container_fs_reads_bytes_total{name!~\"^$|^/$\",image!=\"\"}[5m])))",
+            "topk(10, sum by(name) (rate(container_fs_writes_bytes_total{name!~\"^$|^/$\",image!=\"\"}[5m])))"
+          ],
+          "alias": [
+            "{{name}} read",
+            "{{name}} write"
+          ]
+        }
+      ]
+    }
+  ]
+}
