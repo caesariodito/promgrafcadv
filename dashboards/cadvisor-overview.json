@@ -8,28 +8,28 @@
           "title": "Containers Seen",
           "width": 6,
           "expr": [
-            "count by(instance) (container_last_seen{name!~\"^$|^/$\"})"
+            "count(container_last_seen{id!=\"/\"})"
           ]
         },
         {
           "title": "Top 10 CPU Cores Used",
           "width": 6,
           "expr": [
-            "topk(10, sum by(name) (rate(container_cpu_usage_seconds_total{name!~\"^$|^/$\",image!=\"\"}[5m])))"
+            "topk(10, sum by(id) (rate(container_cpu_usage_seconds_total{id!=\"/\"}[5m])))"
           ]
         },
         {
           "title": "Top 10 Memory Working Set",
           "width": 6,
           "expr": [
-            "topk(10, sum by(name) (container_memory_working_set_bytes{name!~\"^$|^/$\",image!=\"\"}))"
+            "topk(10, max by(id) (container_memory_working_set_bytes{id!=\"/\"}))"
           ]
         },
         {
           "title": "Container Uptime (seconds)",
           "width": 6,
           "expr": [
-            "time() - container_start_time_seconds{name!~\"^$|^/$\",image!=\"\"}"
+            "topk(10, time() - max by(id) (container_start_time_seconds{id!=\"/\"}))"
           ]
         }
       ]
@@ -41,24 +41,24 @@
           "title": "Top 10 Network RX/TX Bytes/s",
           "width": 6,
           "expr": [
-            "topk(10, sum by(name) (rate(container_network_receive_bytes_total{name!~\"^$|^/$\",image!=\"\"}[5m])))",
-            "topk(10, sum by(name) (rate(container_network_transmit_bytes_total{name!~\"^$|^/$\",image!=\"\"}[5m])))"
+            "topk(10, sum by(id) (rate(container_network_receive_bytes_total{id!=\"/\"}[5m])))",
+            "topk(10, sum by(id) (rate(container_network_transmit_bytes_total{id!=\"/\"}[5m])))"
           ],
           "alias": [
-            "{{name}} rx",
-            "{{name}} tx"
+            "{{id}} rx",
+            "{{id}} tx"
           ]
         },
         {
           "title": "Top 10 FS Read/Write Bytes/s",
           "width": 6,
           "expr": [
-            "topk(10, sum by(name) (rate(container_fs_reads_bytes_total{name!~\"^$|^/$\",image!=\"\"}[5m])))",
-            "topk(10, sum by(name) (rate(container_fs_writes_bytes_total{name!~\"^$|^/$\",image!=\"\"}[5m])))"
+            "topk(10, sum by(id) (rate(container_fs_reads_bytes_total{id!=\"/\"}[5m])))",
+            "topk(10, sum by(id) (rate(container_fs_writes_bytes_total{id!=\"/\"}[5m])))"
           ],
           "alias": [
-            "{{name}} read",
-            "{{name}} write"
+            "{{id}} read",
+            "{{id}} write"
           ]
         }
       ]

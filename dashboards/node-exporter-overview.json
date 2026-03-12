@@ -12,10 +12,16 @@
           ]
         },
         {
-          "title": "Memory Usage %",
+          "title": "Memory Used/Available (MB)",
           "width": 6,
+          "unit": "MB",
           "expr": [
-            "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
+            "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / 1024 / 1024",
+            "node_memory_MemAvailable_bytes / 1024 / 1024"
+          ],
+          "alias": [
+            "{{instance}} used",
+            "{{instance}} available"
           ]
         },
         {
